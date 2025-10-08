@@ -10,10 +10,18 @@ const app = express();
 
 // Security middleware
 app.use(helmet());
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:19006'], // Expo dev server
-  credentials: true
-}));
+// CORS: allow web, Expo web, and device origins
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps) or any origin
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // Rate limiting
 const limiter = rateLimit({
